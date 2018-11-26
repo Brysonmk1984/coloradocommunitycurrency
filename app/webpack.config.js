@@ -9,7 +9,7 @@ const   plugins = [
   new webpack.HotModuleReplacementPlugin(),
   new webpack.DefinePlugin({APP_ROOT : "'/'"}),
   //new webpack.DefinePlugin({APP_MODE : process.env.NODE_ENV !== 'production' ? "'development'" : "'production'"}),
-  new webpack.DefinePlugin({API_ENDPOINT : process.env.NODE_ENV === 'production' ? "'https://betaapi-dot-dcoin-web-app.appspot.com/'" : "'http://localhost:3001/'"}),
+  new webpack.DefinePlugin({API_ENDPOINT : process.env.NODE_ENV === 'production' ? "'https://dcoin-backend.appspot.com/'" : "'http://localhost:3001/'"}),
   new webpack.DefinePlugin({
     'process.env': {
       NODE_ENV: '\'' + process.env.NODE_ENV + '\'',
