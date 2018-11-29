@@ -3,13 +3,11 @@ import axios from 'axios';
 
 const endpoint = `${API_ENDPOINT}web3/`;
 
-// Retrieve Transaction Data from Blockchain after hitting node backend
+// Retrieve Transaction Data from Blockchain after retrieving hash from node backend
 const retrieveTransactionData = function(transArray){
-  console.log('asdasd',transArray);
   transArray = transArray.map((item) =>{
     return {"hash" : item.hash.trim(), "timestamp" : item.timestamp};
   });
-  console.log('TAA',transArray);
   return new Promise((resolve, reject) =>{
       return axios.post(`${endpoint}retrieve-transaction-data`, { transArray })
       .then((data) => {
@@ -23,9 +21,8 @@ const retrieveTransactionData = function(transArray){
   });
 }
 
-// Read Balance of account off blockchain after hitting node backend
+// Read Balance of account off blockchain after retrieving hash from node backend
 const readBalance = function(publicEthKey){
-  //console.log('PEK',publicEthKey, publicEthKey.trim().length);
   return new Promise((resolve, reject) =>{
       return axios.post(`${endpoint}read-balance`, { publicEthKey: publicEthKey.trim() })
       .then((data) => {

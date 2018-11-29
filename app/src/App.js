@@ -2,7 +2,6 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 // LIBRARIES
-import { utils } from 'web3';
 import { NotificationManager } from 'react-notifications';
 import history from '~/common/history';
 import { withCookies } from 'react-cookie';
@@ -26,14 +25,12 @@ class App extends React.Component{
   constructor(){
     super();
     this.state = {
+      cookie : '',
+      modalOpen : false,
       // User details
       loggedIn : false,
       publicEthKey : '',
-      email : '',
-      // Cookies saved on client
-      cookie : '',
-      // Indicates whether the modal is open or closed
-      modalOpen : false
+      email : ''
     }
   }
 
@@ -47,40 +44,17 @@ class App extends React.Component{
 
   // Initialize Web 3 to communicate with the blockchain
   _initWeb3(){
-    // Check if Web 3 has been injected by the browser
-    // Use Browser/metamask version
+    // Check if Web 3 has been injected by the browser/metamask, if so, use that version
      if(typeof web3 !== 'undefined'){
-      this.web3Provider = web3.currentProvider;
-      console.log('USING METAMASK', this.web3Provider);
-    // Use web3 from node_modules
-    // set provider to remote RPC
+      web3 = new Web3(web3.currentProvider);
+    // Otherwise, use web3 from node_modules and set provider to remote node
      }else{
-      //this.web3Provider =  new Web3.providers.HttpProvider('http://52.15.122.19:8111');
-      window.web3 = new Web3(new Web3.providers.HttpProvider("http://52.15.122.19:8111"));
-      console.log('USING REMOTE RPC', web3);
+      web3 = new Web3(new Web3.providers.HttpProvider("http://52.15.122.19:8111"));
     }
-
-    //this.web3 = new Web3(this.web3Provider);
-    //console.log('web3 provider',this.web3Provider);
-    console.log('web3 is connected ',web3.isConnected());
   }
 
   // Read the balance of an account
   _readBalance(){
-    // return new Promise((resolve, reject)=>{
-    //   console.log('eth key', this.state.publicEthKey, web3.isAddress);
-    //   console.log('is address', web3.isAddress("0x895B758229aFF6C0f95146A676bBF579aD7636aa") );
-    //   web3.eth.getBalance(this.state.publicEthKey, (error, wei)=>{
-    //     console.log('inside callback for getBalance, before conditional');
-    //     if (!error) {console.log('bal');
-    //       const weiBalance = utils.toBN(wei);
-    //       const ethBalance = utils.fromWei(weiBalance, 'ether');
-    //       resolve(ethBalance);
-    //     }else{console.log('Error retrieving Balance data',error);
-    //       reject(error);
-    //     }
-    //   });
-    // })
     return readBalance(this.state.publicEthKey);
   }
   
@@ -117,31 +91,6 @@ class App extends React.Component{
 
   // WEB3 Call to get transaction data of supplied hashes from blockchain
   _retrieveTransactionData(transArray){
-    // console.log('TD', transArray);
-    // const promiseArray = transArray.map((p, i)=>{
-    //   if(i < 10){
-    //     return new Promise((resolve, reject)=>{
-    //       web3.eth.getTransaction(transArray[i].hash, (err, data) =>{
-    //         if(err){
-    //           console.log('ERR', err);
-    //           reject(err);
-    //         }
-    //         //console.log('TRANS DATA', data);
-    //         resolve(data);
-    //       });
-    //     });
-    //   }
-    // });
-
-    // return Promise.all(promiseArray)
-    // .then((values) =>{
-    //   // Was receiving undefined occasionally... need to look into this later
-    //   // In the mean time, just don't show them
-    //   return values.filter((v)=>{
-    //     return typeof v !== 'undefined';
-    //   });
-    // });
-
     return retrieveTransactionData(transArray);
   }
 
@@ -205,19 +154,15 @@ class App extends React.Component{
   // When Component mounts, check if user is already logged in by 
   // checking for a  client cookie and checking with node backend.
   // If logged in, set state to the user's data
-  componentWillMount(){ console.log('CWM');
-    //const cookieName = NODE_ENV === 'development' ? 'sid' : '1P_JAR';
-    // const cookie = this.props.cookies.get('sid');
-    // if(cookie !== undefined) {
-      loggedIn()
-      .then((data) =>{
-        console.log('DATA', data);
-        if(data){
-          this.setState({loggedIn : true, publicEthKey : data.data.publicEthKey, email : data.data.email });
-          this._initWeb3();
-        }
-      })
-    //} 
+  componentWillMount(){
+    loggedIn()
+    .then((data) =>{
+
+      if(data){
+        this.setState({loggedIn : true, publicEthKey : data.data.publicEthKey, email : data.data.email });
+        this._initWeb3();
+      }
+    })
   }
 
   // Render APP Component
